@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="style.css">
+    <title>Ludiflex | Login & Registration</title>
+</head>       
+<body>
+ <div class="wrapper">
+    <nav class="nav">
+        <div class="nav-logo">
+            <p>Chat Application</p>
+        </div>
+        <div class="nav-menu" id="navMenu">
+            <ul>
+                <li><a href="#" class="link active">Login Page</a></li>
+            </ul>
+        </div>
+        <div class="nav-button">
+            <button class="btn white-btn" id="loginBtn" onclick="login()">Login</button>
+            <button class="btn" id="registerBtn" onclick="register()">Sign Up</button>
+        </div>
+        <div class="nav-menu-btn">
+            <i class="bx bx-menu" onclick="myMenuFunction()"></i> 
+        </div>
+    </nav>
+
+    <!----------------------------- Form box ----------------------------------->    
+    <div class="form-box">
+        
+        <!------------------- login form -------------------------->
+
+        <div class="login-container" id="login">
+            <div class="top">
+                <header>Login</header>
+            </div>
+            <!-- Login form -->
+            <form onsubmit="handleLogin(event)">
+                <div class="input-box">
+                    <input type="text" class="input-field" placeholder="Username or Phone Number" name="username" required>
+                    <i class="bx bx-user"></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" class="input-field" placeholder="Password" name="password" required>
+                    <i class="bx bx-lock-alt"></i>
+                </div>
+                <div class="input-box">
+                    <input type="button" class="submit" value="Sign In" onclick="location.href='Login.html';">
+                </div>
+                <div class="two-col">
+                    <div class="one">
+                        <input type="checkbox" id="login-check">
+                        <label for="login-check"> Remember Me</label>
+                    </div>
+                    <div class="two">
+                        <label>Don't have an account? <a href="#" onclick="register()">Sign Up</a></label>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!------------------- registration form -------------------------->
+        <div class="register-container" id="register">
+            <div class="top">
+                <header>Sign Up</header>
+            </div>
+            <form onsubmit="handleRegister(event)">
+                <div class="input-box">
+                    <input type="text" class="input-field" placeholder="Username" name="username" required>
+                    <i class="bx bx-user"></i>
+                </div>
+                <div class="input-box">
+                    <input type="text" class="input-field" placeholder="Phone Number" name="phone" required>
+                    <i class="bx bx-phone"></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" class="input-field" placeholder="Password" name="password" required>
+                    <i class="bx bx-lock-alt"></i>
+                </div>
+                <div class="input-box">
+                    <input type="submit" class="submit" value="Register">
+                </div>
+                <div class="two-col">
+                    <div class="one">
+                        <input type="checkbox" id="register-check">
+                        <label for="register-check"> Remember Me</label>
+                    </div>
+                    <div class="two">
+                        <label>Have an account? <a href="#" onclick="login()">Login</a></label>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>   
+
+<script>
+   function myMenuFunction() {
+       var i = document.getElementById("navMenu");
+       if (i.className === "nav-menu") {
+           i.className += " responsive";
+       } else {
+           i.className = "nav-menu";
+       }
+   }
+
+   var a = document.getElementById("loginBtn");
+   var b = document.getElementById("registerBtn");
+   var x = document.getElementById("login");
+   var y = document.getElementById("register");
+
+   function login() {
+       x.style.left = "4px";
+       y.style.right = "-520px";
+       a.className += " white-btn";
+       b.className = "btn";
+       x.style.opacity = 1;
+       y.style.opacity = 0;
+   }
+
+   function register() {
+       x.style.left = "-510px";
+       y.style.right = "5px";
+       a.className = "btn";
+       b.className += " white-btn";
+       x.style.opacity = 0;
+       y.style.opacity = 1;
+   }
+
+   async function handleLogin(event) {
+    event.preventDefault();
+    const username = document.querySelector('#login [name="username"]').value;
+    const password = document.querySelector('#login [name="password"]').value;
+
+    const response = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    });
+
+    const result = await response.text();
+    if (response.ok) {
+        alert(result);
+        window.location.href = 'index.html'; // Redirect to the chat homepage
+    } else {
+        alert(result);
+    }
+}
+
+
+async function handleRegister(event) {
+    event.preventDefault();
+
+    const username = document.querySelector('#register [name="username"]').value;
+    const phone = document.querySelector('#register [name="phone"]').value;
+    const password = document.querySelector('#register [name="password"]').value;
+
+    // Send the data to the backend
+    const response = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, phone, password })
+    });
+
+    const result = await response.text();
+    alert(result);  // Alert the result (success or failure)
+}
+</script>
+
+</body>
+</html>

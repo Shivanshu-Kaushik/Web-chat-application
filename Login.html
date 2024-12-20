@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Animation for SOS Button */
+        .sos-button {
+            background-color: #ff3b30;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .sos-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(255, 59, 48, 0.5);
+        }
+
+        .sos-button:active {
+            transform: scale(1);
+            box-shadow: none;
+        }
+
+        /* Chat Message Styles */
+        .message {
+            padding: 12px;
+            border-radius: 15px;
+            font-size: 15px;
+            margin-bottom: 10px;
+            display: block; /* Ensures messages stack vertically */
+            max-width: 60%;
+            word-wrap: break-word;
+        }
+
+        /* Sent Messages - Align Right */
+        .sent {
+            background-color: #0a84ff;
+            color: #fff;
+            align-self: flex-end;
+        }
+
+        /* Received Messages - Align Left */
+        .received {
+            background-color: #636366;
+            color: #fff;
+            align-self: flex-start;
+        }
+
+        /* Chat Areas */
+        .chat-area {
+            padding: 20px;
+            overflow-y: auto;
+            height: 300px;
+            display: flex;
+            flex-direction: column; /* Ensures messages stack vertically */
+        }
+
+        /* Input Area */
+        .input-area {
+            display: flex;
+            padding: 10px;
+        }
+
+        /* Other styles */
+        #sos-notification {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ff3b30;
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            font-size: 18px;
+            z-index: 1001;
+            width: 350px;
+            text-align: center;
+        }
+
+        #sos-timer {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        #sos-notification button {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        #sos-notification button:hover {
+            background-color: #333;
+        }
+
+        .blurred {
+            filter: blur(5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="sidebar">
+            <h2>Chats</h2>
+            <ul class="contact-list">
+                <li class="contact" onclick="selectUser('Shivanshu')">Shivanshu</li>
+                <li class="contact" onclick="selectUser('Manan')">Manan</li>
+                <li class="contact" onclick="selectUser('Suryansh')">Suryansh</li>
+                <li class="contact" onclick="selectUser('Tushar')">Tushar</li>
+            </ul>
+        </div>
+
+        <div class="chat-window">
+            <div class="chat-header">
+                <h3>Chat with <span id="contact-name">Shivanshu</span></h3>
+                <button class="sos-button" onclick="sendSOS()">SOS</button>
+            </div>
+
+            <div class="chat-area" id="shivanshu-chat-area" style="display: block;"></div>
+            <div class="chat-area" id="manan-chat-area" style="display: none;"></div>
+            <div class="chat-area" id="suryansh-chat-area" style="display: none;"></div>
+            <div class="chat-area" id="tushar-chat-area" style="display: none;"></div>
+
+            <div class="input-area">
+                <input type="text" id="message-input" placeholder="Type a message..." onkeydown="handleEnter(event)">
+                <button class="send-button" onclick="sendMessage()">Send</button>
+                <div class="share-dropdown">
+                    <button class="share-button" onclick="toggleShareMenu()">Share</button>
+                    <div class="share-options" id="share-menu">
+                        <button class="option">Audio</button>
+                        <button class="option">Video</button>
+                        <button class="option">Document</button>
+                        <button class="option">Photo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="sos-notification">
+        <div id="sos-timer">5</div>
+        Do you want to send SOS ALERT? 
+        <button onclick="cancelSOS()">Cancel</button>
+    </div>
+
+    <script>
+        let sosTimeout;
+        let countdownTimer;
+        let countdownValue = 5;
+
+        function selectUser(name) {
+            document.getElementById("contact-name").innerText = name;
+
+            const chatAreas = document.querySelectorAll(".chat-area");
+            chatAreas.forEach(area => area.style.display = "none");
+
+            const selectedChatArea = document.getElementById(`${name.toLowerCase()}-chat-area`);
+            selectedChatArea.style.display = "block";
+        }
+
+        function handleEnter(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Prevents default behavior
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById("message-input");
+            const messageText = messageInput.value.trim();
+
+            if (messageText) {
+                const contactName = document.getElementById("contact-name").innerText;
+                const chatArea = document.getElementById(`${contactName.toLowerCase()}-chat-area`);
+
+                const messageElement = document.createElement("div");
+                messageElement.classList.add("message", "sent");
+                messageElement.innerText = messageText;
+
+                chatArea.appendChild(messageElement);
+                messageInput.value = "";
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }
+        }
+
+        function toggleShareMenu() {
+            const shareMenu = document.getElementById("share-menu");
+            shareMenu.style.display = shareMenu.style.display === "block" ? "none" : "block";
+        }
+
+        window.addEventListener("click", function(event) {
+            if (!event.target.matches('.share-button')) {
+                document.getElementById("share-menu").style.display = "none";
+            }
+        });
+
+        function sendSOS() {
+            const sosNotification = document.getElementById("sos-notification");
+            sosNotification.style.display = "block";
+
+            document.querySelector(".app-container").classList.add("blurred");
+
+            countdownValue = 5;
+            updateCountdown();
+
+            sosTimeout = setTimeout(() => {
+                sendLocation();
+                sosNotification.style.display = "none"; // Hide after sending location
+                document.querySelector(".app-container").classList.remove("blurred");
+            }, 5000);
+
+            countdownTimer = setInterval(() => {
+                countdownValue--;
+                updateCountdown();
+
+                if (countdownValue <= 0) {
+                    clearInterval(countdownTimer);
+                }
+            }, 1000);
+        }
+
+        function updateCountdown() {
+            document.getElementById("sos-timer").innerText = countdownValue;
+        }
+
+        function cancelSOS() {
+            const sosNotification = document.getElementById("sos-notification");
+            sosNotification.style.display = "none";
+            document.querySelector(".app-container").classList.remove("blurred");
+
+            clearTimeout(sosTimeout);
+            clearInterval(countdownTimer);
+        }
+
+        function sendLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const contactName = document.getElementById("contact-name").innerText;
+                    const chatArea = document.getElementById(`${contactName.toLowerCase()}-chat-area`);
+
+                    const sosMessage = document.createElement("div");
+                    sosMessage.classList.add("message", "sent");
+
+                    const link = document.createElement("a");
+                    link.href = `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`;
+                    link.target = "_blank";
+                    link.innerText = `I am here: ${position.coords.latitude}, ${position.coords.longitude}`;
+
+                    sosMessage.innerHTML = ''; // Clear duplicate rendering
+                    sosMessage.appendChild(link);
+                    chatArea.appendChild(sosMessage);
+                    chatArea.scrollTop = chatArea.scrollHeight;
+                });
+            }
+        }
+    </script>
+</body>
+</html>
